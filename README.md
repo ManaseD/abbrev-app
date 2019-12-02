@@ -45,7 +45,7 @@ dietary modification
 2. A text file of sentences with the abbreviation marked by the `<...>`:
 ```
 ...
-This is an exmaple sentence that users the abbreviation <dm> to show the format
+This is an exmaple sentence that uses the abbreviation <dm> to illustrate an example
 ...
 ```
 
