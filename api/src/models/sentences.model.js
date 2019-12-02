@@ -12,7 +12,7 @@ module.exports = function (app) {
       primaryKey: true,
     },
     text: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     abbrev_id: {

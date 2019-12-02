@@ -38,10 +38,12 @@
     "cors": "^2.8.5",
     "feathers-sequelize": "^6.0.1",
     "helmet": "^3.20.0",
+    "nodemon": "^1.11.0",
     "pg": "^7.12.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
     "sequelize": "^5.16.0",
     "serve-favicon": "^2.5.0",
-    "winston": "^3.0.0",
-    "nodemon": "^1.11.0"
+    "winston": "^3.0.0"
   }
 }
