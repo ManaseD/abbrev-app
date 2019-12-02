@@ -1,6 +1,6 @@
-# Docker Feathers React and MaterialUI
+# Abbreviation App
 
-Boilerplate code for a simple web app using [Docker](https://www.docker.com/), [FeathersJS](https://feathersjs.com/), [React](https://reactjs.org/), and [MaterialUI](https://material-ui.com/).
+Web app that crowd sources understanding of abbreviations used in medical context.
 
 ## Requirements
 
@@ -30,74 +30,26 @@ Open postgres database:
 docker-compose -f docker-compose.yml exec postgres psql -U project-name project-name
 ```
 
-## Customization and Production deployment
-Update `project-name` in the package.json and docker-compose yml files to desired project name.
+## Import abbreviation data
 
-For production deployment, assuming you have an SSL certificate and want to serve via HTTPS, update the `.env` to point the `API_BASE_URL` to your domain name and set the `API_PORT` to another port like `4003` so that we can have the server listen on `4001` instead.
+Assumes data is provided in the following format:
+1. An expansions text file with each expansion on a new line:
 ```
-#######################
-# DOCKER CONFIGURATION #
-########################
-
-API_PORT=4003
-APP_PORT=4002
-
+...
+dipole moment
+dexmedetomidine
+detarium microcarpum
+dietary modification
+...
 ```
-Then update the `docker-compose.yml` to specify where the APP will look for the API. This will remain on the same initial port of `4001` where the server is listening.
+2. A text file of sentences with the abbreviation marked by the `<...>`:
 ```
-app:
-    build: ./app
-
-    ...
-
-    environment:
-      - SPA_BASE_URL=<your-domain-name>:$APP_PORT
-      - API_BASE_URL=<your-domain-name>:4001
-      - INTERNAL_API_BASE_URL=http://api:8000
-    ports:
-      - "$APP_PORT:8000"
-    entrypoint: node start.js
-
-    ...
-
+...
+This is an exmaple sentence that users the abbreviation <dm> to show the format
+...
 ```
 
-
-Then setup the nginx config (`/etc/nginx/sites-available/default`) to point incoming server requests to the backend and front-end respectively, example below:
+To import the data, call the `import-data.js` script with the abbreviation as the first parameter, then the path to the expansions text file, and finall the path to the sentences text file as follows:
+```bash
+node import-data.js dm ./path-to-expansions.txt ./path-to-sentences.txt
 ```
-server {
-        listen 80;
-        server_name <your-domain-name>;
-        location / {
-          return 301 https://$server_name$request_uri/;
-        }
-}
-
-server {
-        listen 443 ssl;
-        server_name <your-domain-name>;
-        ssl_prefer_server_ciphers on;
-        ssl_ciphers 'ECDH !aNULL !eNULL !SSLv2 !SSLv3';
-        ssl_certificate /etc/nginx/certs/certificate.crt;
-        ssl_certificate_key /etc/nginx/certs/privkey.pem;
-        location / {
-          proxy_pass http://localhost:4002;
-        }
-}
-
-server {
-        listen 4001 ssl;
-        server_name <your-domain-name>;
-        ssl_ciphers 'ECDH !aNULL !eNULL !SSLv2 !SSLv3';
-        ssl_certificate /etc/nginx/certs/certificate.crt;
-        ssl_certificate_key /etc/nginx/certs/privkey.pem;
-        location / {
-          proxy_pass http://localhost:4003;
-        }
-}
-```
-
-## Code Splitting
-Code splitting involves breaking down the bundle file into smaller-sized chunks. This can be advantageous in times when certain packages are updated/added, as the client only needs to redownload a certain chunk in their cache, rather than the entire bundle. 
-
-Prior to Webpack v4, this was accomplished with the `CommonsChunkPlugin`, which has since been deprecated and replaced with the `SplitChunksPlugin`. Documentation on code splitting can be found [here](https://webpack.js.org/plugins/split-chunks-plugin/).
