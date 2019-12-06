@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 
-import responsive from 'FRS/components/responsive.jsx'
+import responsive from 'ABB/components/responsive.jsx'
 
 @responsive
 export default class Login extends Component {
@@ -21,17 +21,26 @@ export default class Login extends Component {
     const { authenticate } = this.props
     const { email, password } = this.state
 
+    const textStyle = {
+      fontFamily: 'Roboto, Arial, Helvetica, sans-serif',
+      fontSize: 22,
+      fontWeight: 500,
+    }
+
     return (
-      <div style={{ padding: '0 20px' }}>
+      <div style={{ flexBasis: '50%', paddingRight: 20 }}>
+        <div style={{ ...textStyle, fontSize: 16 }}>
+          Already have an account?
+        </div>
         <TextField
           fullWidth
           required
           id="email-local"
           label="Email"
-          margin="normal"
+          margin="dense"
           onChange={(event) => this.handleChange('email', event.target.value)}
           type="email"
-          variant="outlined"
+          variant="filled"
           value={email}
         />
         <TextField
@@ -39,18 +48,20 @@ export default class Login extends Component {
           required
           id="password-local"
           label="Password"
-          margin="normal"
+          margin="dense"
           onChange={(event) => this.handleChange('password', event.target.value)}
           type="password"
-          variant="outlined"
+          variant="filled"
           value={password}
         />
-        <div style={{ textAlign: 'center', marginBottom: 20, marginTop: 16 }}>
+        <div style={{ ...textStyle, color: '#232f3e', fontSize: 13, paddingTop: 18, paddingBottom: 12 }}>
+          Forgot your password? Please contact <a style={{ textDecoration: 'none', color: '#0b56ca' }} href="mailto:marta.skreta@sickkids.ca">Marta Skreta</a> to reset your account
+        </div>
+        <div style={{ marginBottom: 20, marginTop: 16 }}>
           <Button
             variant="contained"
-            color="secondary"
+            color="primary"
             onClick={() => authenticate({ email, password })}
-            style={{ width: '100%' }}
           >
             Login
           </Button>

@@ -31,9 +31,9 @@ services:
       - APP_BASE_URL=http://localhost:$APP_PORT
       - DEBUG=feathers-react-starter:*
       - LOG_FORMAT=dev
-      - POSTGRES_DB=project-name
+      - POSTGRES_DB=abb-app
       - POSTGRES_HOST=postgres
-      - POSTGRES_USER=project-name
+      - POSTGRES_USER=abb-app
     env_file:
       - ./api/secrets/POSTGRES_PASSWORD
     ports:
@@ -47,9 +47,9 @@ services:
   postgres:
     image: postgres:9.6
     environment:
-      - POSTGRES_DB=project-name
+      - POSTGRES_DB=abb-app
       - POSTGRES_HOST=postgres
-      - POSTGRES_USER=project-name
+      - POSTGRES_USER=abb-app
     env_file:
       - ./api/secrets/POSTGRES_PASSWORD
     volumes:

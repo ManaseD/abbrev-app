@@ -1,5 +1,5 @@
 {
-  "name": "project-name",
+  "name": "abb-app",
   "version": "0.4.0",
   "license": "MIT",
   "description": "Sample project with feathers and react",
@@ -10,7 +10,7 @@
   "bugs": {},
   "scripts": {
     "db:reset": "docker-compose -f docker-compose.yml run --rm api node scripts db/reset",
-    "psql": "docker-compose -f docker-compose.yml exec postgres psql -U project-name project-name"
+    "psql": "docker-compose -f docker-compose.yml exec postgres psql -U abb-app abb-app"
   },
   "dependencies": {
     "node-base64-image": "^1.0.6",

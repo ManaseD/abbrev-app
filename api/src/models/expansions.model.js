@@ -1,10 +1,10 @@
 // See http://docs.sequelizejs.com/en/latest/docs/models-definition/
 // for more of what you can do here.
-const Sequelize = require('sequelize');
-const DataTypes = Sequelize.DataTypes;
+const Sequelize = require('sequelize')
+const DataTypes = Sequelize.DataTypes
 
 module.exports = function (app) {
-  const sequelizeClient = app.get('sequelizeClient');
+  const sequelizeClient = app.get('sequelizeClient')
   const expansions = sequelizeClient.define('expansions', {
     id: {
       type: DataTypes.UUID,
@@ -22,10 +22,10 @@ module.exports = function (app) {
   }, {
     hooks: {
       beforeCount(options) {
-        options.raw = true;
+        options.raw = true
       }
     }
-  });
+  })
 
   // eslint-disable-next-line no-unused-vars
   expansions.associate = function (models) {
@@ -34,7 +34,7 @@ module.exports = function (app) {
     expansions.belongsTo(abbreviations, {
       foreignKey: 'abbrev_id'
     })
-  };
+  }
 
-  return expansions;
-};
+  return expansions
+}
