@@ -49,7 +49,7 @@ This is an exmaple sentence that uses the abbreviation <dm> to illustrate an exa
 ...
 ```
 
-To import the data, call the `import-data.js` script with the abbreviation as the first parameter, then the path to the expansions text file, and finall the path to the sentences text file as follows:
+To import the data, call the `import-data.js` script with the abbreviation as the first parameter, then the path to the expansions text file, and finally the path to the sentences text file as follows:
 ```bash
 node import-data.js dm ./path-to-expansions.txt ./path-to-sentences.txt
 ```
