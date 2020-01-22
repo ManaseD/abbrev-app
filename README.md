@@ -32,6 +32,25 @@ docker-compose -f docker-compose.yml exec postgres psql -U project-name project-
 
 ## Import abbreviation data
 
+### Bulk import
+Assumes you have a JSON file structured in the following format:
+```javascript
+{ abbreviation: 
+  { expansions: [
+      "expanded text of the abbreviation",
+      ...
+    ],
+    sentences: [
+      "sentence with an <abbreviation> somewhere",
+      ...
+    ]
+  } 
+}
+```
+
+Exec into the API container and run `node ./scripts/import-json-data.js <path/to/abbreviations.json>`
+
+### Import individual abbreviations
 Assumes data is provided in the following format:
 1. An expansions text file with each expansion on a new line:
 ```
