@@ -13,25 +13,21 @@ import responsive from 'ABB/components/responsive.jsx'
 
 @responsive
 export default class SetSelector extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-    }
-  }
-
   renderRow = (abbreviation) => {
     const { onSelect } = this.props
     const { id, abbreviated_text, sentences, responses } = abbreviation
 
+    const completed = responses.length === sentences.length
+
     return (
       <TableRow hover style={{ cursor: 'pointer' }} key={id} onClick={() => onSelect(abbreviation)}>
-        <TableCell align="left" style={{ fontSize: 16, fontWeight: 'bold' }}>
+        <TableCell align="left" style={{ fontSize: 16, fontWeight: 'bold', ...completed && { color: 'rgba(35, 47, 62, 0.54)' } }}>
           {abbreviated_text}
         </TableCell>
-        <TableCell align="left">
+        <TableCell align="left" style={{ ...completed && { color: 'rgba(35, 47, 62, 0.54)' } }}>
           {sentences.length}
         </TableCell>
-        <TableCell align="left">
+        <TableCell align="left" style={{ ...completed && { color: 'rgba(35, 47, 62, 0.54)' } }}>
           {`${(responses.length / sentences.length * 100).toFixed(0)}%`}
         </TableCell>
       </TableRow>
