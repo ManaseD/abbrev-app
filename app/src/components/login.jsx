@@ -18,7 +18,7 @@ export default class Login extends Component {
   handleChange = (field, value) => this.setState({ [field]: value })
 
   render() {
-    const { authenticate } = this.props
+    const { authenticate, onMobile } = this.props
     const { email, password } = this.state
 
     const textStyle = {
@@ -28,9 +28,22 @@ export default class Login extends Component {
     }
 
     return (
-      <div style={{ flexBasis: '50%', paddingRight: 20 }}>
+      <div>
+        <div
+          style={{
+            color: '#232f3e',
+            fontFamily: 'Roboto, Arial, Helvetica, sans-serif',
+            fontSize: 28,
+            fontWeight: 700,
+            textAlign: 'center',
+            marginTop: onMobile ? 10 : 20,
+            marginBottom: onMobile ? 10 : 40,
+          }}
+        >
+          Abbreviation App
+        </div>
         <div style={{ ...textStyle, fontSize: 16 }}>
-          Already have an account?
+          Please sign in with your provided account:
         </div>
         <TextField
           fullWidth
