@@ -6,14 +6,24 @@ module.exports = {
     all: [
       authenticate('jwt')
     ],
-    find: [],
-    get: [],
+    find: [
+      setField({ from: 'params.user.id', as: 'data.user_id' })
+    ],
+    get: [
+      setField({ from: 'params.user.id', as: 'data.user_id' })
+    ],
     create: [
      setField({ from: 'params.user.id', as: 'data.user_id' })
     ],
-    update: [],
-    patch: [],
-    remove: []
+    update: [
+      setField({ from: 'params.user.id', as: 'data.user_id' })
+    ],
+    patch: [
+      setField({ from: 'params.user.id', as: 'data.user_id' })
+    ],
+    remove: [
+      setField({ from: 'params.user.id', as: 'data.user_id' })
+    ]
   },
 
   after: {

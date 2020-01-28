@@ -1,9 +1,18 @@
 import React, { Component } from 'react'
 import get from 'lodash/get'
 
+import Fab from '@material-ui/core/Fab'
+import AddIcon from '@material-ui/icons/Add'
+import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Paper from '@material-ui/core/Paper'
 import Snackbar from '@material-ui/core/Snackbar'
+
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
 
 import app from 'ABB/feathers-client.js'
 import responsive from 'ABB/components/responsive.jsx'
@@ -23,6 +32,8 @@ export default class App extends Component {
       selectedAbbreviation: null,
       isAuthenticated: false,
       isLoading: true,
+      registrationOpen: false,
+      role: 'user',
       snackBarOpen: false,
       snackBarMessage: null
     }
@@ -30,14 +41,15 @@ export default class App extends Component {
 
   authenticate = (options) => {
     return app.authenticate({ strategy: 'local', ...options })
-      .then(()=> this.fetchAbbreviations())
+      .then((auth) => this.setState({ role: get(auth, 'user.role') }))
+      .then(() => this.fetchAbbreviations())
       .then(() => this.setState({ isAuthenticated: true }))
       .catch((err) => {
         console.log('authenticate error, ', err)
         this.setState({
             isAuthenticated: false,
             snackBarOpen: true,
-            snackBarMessage: 'Login failed, please check your email and/or password'
+            snackBarMessage: 'Login failed, please check your username and/or password'
           })
         }
       )
@@ -61,6 +73,7 @@ export default class App extends Component {
       .then(accessToken => {
         if (accessToken) {
           return app.reAuthenticate()
+            .then((auth) => this.setState({ role: get(auth, 'user.role') }))
             .then(()=> this.fetchAbbreviations())
             .then(() => this.setState({ isAuthenticated: true }))
             .catch((err) => app.authentication.removeAccessToken())
@@ -84,10 +97,41 @@ export default class App extends Component {
     }
   }
 
+  renderRegistrationDialog() {
+    const { onMobile } = this.props
+    const { registrationOpen } = this.state
+
+    return (
+      <Dialog
+        fullScreen={onMobile}
+        open={registrationOpen}
+        onClose={() => this.setState({ registrationOpen: false})}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          <span style={{ fontWeight: 700 }}>
+            Register new users
+          </span>
+        </DialogTitle>
+        <DialogContent>
+          <Registration />
+        </DialogContent>
+        <DialogActions style={{ float: 'right' }}>
+          <Button
+            onClick={() => this.setState({ registrationOpen: false})}
+            disableElevation
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
 
   render() {
     const { onMobile } = this.props
-    const { abbreviations, isAuthenticated, isLoading, snackBarOpen, snackBarMessage } = this.state
+    const { abbreviations, isAuthenticated, isLoading, role, snackBarOpen, snackBarMessage } = this.state
 
     return (
       <div
@@ -107,6 +151,16 @@ export default class App extends Component {
           onClose={this.handleCloseSnackBar}
           message={snackBarMessage}
         />
+        {isAuthenticated && role === 'admin'
+          ? <Fab
+              color="primary"
+              style={{ position: 'absolute', right: 10, bottom: 10 }}
+              onClick={()=>this.setState({ registrationOpen: true })}
+            >
+              <AddIcon />
+            </Fab>
+          : null
+        }
         <Paper
           elevation={onMobile ? 0 : 3}
           style={{
@@ -118,6 +172,7 @@ export default class App extends Component {
           }}
         >
           {this.renderLabelerDialog()}
+          {this.renderRegistrationDialog()}
           {isLoading
             ? <div style={{ minHeight: 300, minWidth: 300}}>
                 <div
@@ -139,10 +194,7 @@ export default class App extends Component {
               </div>
             : isAuthenticated
               ? <SetSelector abbreviations={abbreviations} onSelect={this.onAbbreviationSelect} />
-              : <div style={{ display: 'flex' }}>
-                  <Login authenticate={this.authenticate} />
-                  {/*<Registration authenticate={this.authenticate} />*/}
-                </div>
+              : <Login authenticate={this.authenticate} />
           }
         </Paper>
       </div>

@@ -10,7 +10,7 @@ export default class Login extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      email: '',
+      username: '',
       password: ''
     }
   }
@@ -19,7 +19,7 @@ export default class Login extends Component {
 
   render() {
     const { authenticate, onMobile } = this.props
-    const { email, password } = this.state
+    const { username, password } = this.state
 
     const textStyle = {
       fontFamily: 'Roboto, Arial, Helvetica, sans-serif',
@@ -48,13 +48,13 @@ export default class Login extends Component {
         <TextField
           fullWidth
           required
-          id="email-local"
-          label="Email"
+          id="username-local"
+          label="Username"
           margin="dense"
-          onChange={(event) => this.handleChange('email', event.target.value)}
-          type="email"
+          onChange={(event) => this.handleChange('username', event.target.value)}
+          type="username"
           variant="filled"
-          value={email}
+          value={username}
         />
         <TextField
           fullWidth
@@ -70,11 +70,12 @@ export default class Login extends Component {
         <div style={{ ...textStyle, color: '#232f3e', fontSize: 13, paddingTop: 18, paddingBottom: 12 }}>
           Forgot your password? Please contact <a style={{ textDecoration: 'none', color: '#0b56ca' }} href="mailto:marta.skreta@sickkids.ca">Marta Skreta</a> to reset your account
         </div>
-        <div style={{ marginBottom: 20, marginTop: 16 }}>
+        <div style={{ marginTop: 16 }}>
           <Button
             variant="contained"
             color="primary"
-            onClick={() => authenticate({ email, password })}
+            onClick={() => authenticate({ username, password })}
+            style={{ width: '100%' }}
           >
             Login
           </Button>

@@ -11,11 +11,13 @@ module.exports = function (app) {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    education: {
-      type: DataTypes.STRING,
-      allowNull: false
+    role: {
+      type: DataTypes.ENUM,
+      values: ['admin', 'user'],
+      allowNull: false,
+      defaultValue: 'user',
     },
-    email: {
+    username: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true

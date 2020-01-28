@@ -1,8 +1,10 @@
-const { populate } = require('feathers-hooks-common')
+const { authenticate } = require('@feathersjs/authentication')
 
 module.exports = {
   before: {
-    all: [],
+    all: [
+      authenticate('jwt')
+    ],
     find: [],
     get: [],
     create: [],
@@ -13,32 +15,7 @@ module.exports = {
 
   after: {
     all: [],
-    find: [
-      populate({
-        schema: {
-          include: [
-            {
-              service: 'abbreviations',
-              nameAs: 'abbreviation',
-              parentField: 'abbrev_id',
-              childField: 'id'
-            },
-            {
-              service: 'expansions',
-              nameAs: 'expansions',
-              parentField: 'abbrev_id',
-              childField: 'abbrev_id'
-            },
-            {
-              service: 'responses',
-              nameAs: 'response',
-              parentField: 'id',
-              childField: 'sentence_id'
-            },
-          ]
-        }
-      })
-    ],
+    find: [],
     get: [],
     create: [],
     update: [],

@@ -1,6 +1,10 @@
+const { authenticate } = require('@feathersjs/authentication')
+
 module.exports = {
   before: {
-    all: [],
+    all: [
+      authenticate('jwt')
+    ],
     find: [],
     get: [],
     create: [],

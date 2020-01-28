@@ -1,17 +1,29 @@
 const { authenticate } = require('@feathersjs/authentication')
-const { populate } = require('feathers-hooks-common')
+const { disallow, populate } = require('feathers-hooks-common')
+
+const get = require('lodash/get')
 
 module.exports = {
   before: {
-    all: [
+    all: [],
+    find: [
       authenticate('jwt')
     ],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    get: [
+      disallow('external')
+    ],
+    create: [
+      disallow('external')
+    ],
+    update: [
+      disallow('external')
+    ],
+    patch: [
+      disallow('external')
+    ],
+    remove: [
+      disallow('external')
+    ]
   },
 
   after: {
@@ -39,6 +51,7 @@ module.exports = {
               nameAs: 'responses',
               parentField: 'id',
               childField: 'abbrev_id',
+              select: (context, parentItem, depth) => ({ user_id: get(context, 'params.user.id') }),
               asArray: true
             },
           ]
