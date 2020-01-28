@@ -16,9 +16,9 @@ module.exports = function (app) {
       allowNull: false,
       unique: 'abbrev_sentence_user'
     },
-    expansions: {
-      type: DataTypes.JSON,
-      allowNull: false
+    expansion_id: {
+      type: DataTypes.UUID,
+      allowNull: true
     },
     sentence_id: {
       type: DataTypes.UUID,
@@ -44,10 +44,13 @@ module.exports = function (app) {
 
   // eslint-disable-next-line no-unused-vars
   responses.associate = function (models) {
-    const { abbreviations, sentences, users } = models
+    const { abbreviations, expansions, sentences, users } = models
 
     responses.belongsTo(abbreviations, {
       foreignKey: 'abbrev_id'
+    })
+    responses.belongsTo(expansions, {
+      foreignKey: 'expansion_id'
     })
     responses.belongsTo(sentences, {
       foreignKey: 'sentence_id'

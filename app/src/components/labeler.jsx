@@ -6,11 +6,11 @@ import join from 'lodash/join'
 import map from 'lodash/map'
 import slice from 'lodash/slice'
 
-import Autocomplete from '@material-ui/lab/Autocomplete'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import ClearIcon from '@material-ui/icons/Clear'
-import FilledIcon from '@material-ui/icons/IndeterminateCheckBoxTwoTone'
+import NoneIcon from '@material-ui/icons/IndeterminateCheckBoxTwoTone'
+import FilledIcon from '@material-ui/icons/CheckBox'
 import FormGroup from '@material-ui/core/FormGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import IconButton from '@material-ui/core/IconButton'
@@ -32,32 +32,35 @@ export default class Labeler extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      disabled: false,
       index: 0,
-      selectedExpansions: [],
+      expansionId: "",
+      other: null,
       sentences: [],
       responses: []
     }
   }
 
-  handleCheckBox = (event) => this.setState({ disabled: event.target.checked })
+  handleCheckBox = (label, checked) => checked
+    ? this.setState({ other: label, expansionId: "" })
+    : this.setState({ other: null })
 
   getResponse = (sentence_id) => find(this.state.responses, r => r.sentence_id === sentence_id)
 
   saveResponse = () => {
-    const { disabled, index, selectedExpansions, sentences, responses } = this.state
+    const { index, expansionId, other, sentences, responses } = this.state
 
     const sentence = sentences[index]
     const sentence_id = get(sentence, 'id')
     const abbrev_id = get(sentence, 'abbrev_id')
     const response = this.getResponse(sentence_id)
-    const expansions = disabled ? [] : selectedExpansions
+    const expansion_id = expansionId === "" ? null : expansionId
+    const other_text = other
 
     // Check if we already have a response for this sentence
     if (response) {
       // If we have a response and we've changed the answer, then we need patch it
-      if ((response.expansions !== selectedExpansions) || (disabled && response.expansions.length > 0)) {
-        return app.service('responses').patch(response.id, { expansions })
+      if (response.expansion_id !== expansion_id || response.other_text !== other) {
+        return app.service('responses').patch(response.id, { expansion_id, other_text })
           .then(result => {
             const newResponses = map(responses, (r) => r.id === result.id ? result : r )
 
@@ -70,12 +73,14 @@ export default class Labeler extends Component {
     }
 
     // If we don't have an existing response, then we need to create a new one
-    return app.service('responses').create({ abbrev_id, expansions, sentence_id })
+    return app.service('responses').create({ abbrev_id, expansion_id, other_text, sentence_id })
       .then(result => this.setState( prevState => ({
         ...prevState,
         responses: [ ...prevState.responses, result ]
       })))
   }
+
+  handleSelect = event => this.setState({ expansionId: event.target.value, other: null })
 
   handleNext = () => {
     const { index, sentences } = this.state
@@ -90,10 +95,10 @@ export default class Labeler extends Component {
     const nextIndex = Math.min(index + 1, sentences.length)
     const nextSentence = sentences[nextIndex]
     const nextResponse = this.getResponse(nextSentence.id)
-    const disabled = nextResponse && nextResponse.expansions.length === 0
-    const selectedExpansions = nextResponse ? nextResponse.expansions : []
+    const other = get(nextResponse, 'other_text') ? nextResponse.other_text : null
+    const expansionId = get(nextResponse, 'expansion_id') ? nextResponse.expansion_id : ""
 
-    this.setState({ disabled, index: nextIndex, selectedExpansions })
+    this.setState({ index: nextIndex, expansionId, other })
   }
 
   handlePrev = () => {
@@ -103,16 +108,16 @@ export default class Labeler extends Component {
     const newIndex = Math.max(index - 1, 0)
     const prevSentence = sentences[newIndex]
     const prevResponse = this.getResponse(prevSentence.id)
-    const disabled = prevResponse && prevResponse.expansions.length === 0
-    const selectedExpansions = prevResponse ? prevResponse.expansions : []
+    const other = get(prevResponse, 'other_text') ? prevResponse.other_text : null
+    const expansionId = get(prevResponse, 'expansion_id') ? prevResponse.expansion_id : ""
 
-    this.setState({ disabled, index: newIndex, selectedExpansions })
+    this.setState({ index: newIndex, expansionId, other })
   }
 
   onClose = () => {
     const { handleClose } = this.props
 
-    this.setState({ disabled: false, index: 0, selectedExpansions: [], sentences: [], responses: [] })
+    this.setState({ index: 0, expansionId: "", other: null, sentences: [], responses: [] })
 
     handleClose()
   }
@@ -132,10 +137,10 @@ export default class Labeler extends Component {
       // if we have all the responses show the last one
       const index = numResponses - 1
       const lastResponse = find(responses, r => r.sentence_id === sentences[index].id)
-      const selectedExpansions = lastResponse ? lastResponse.expansions : []
-      const disabled = lastResponse && lastResponse.expansions.length === 0
+      const other = get(lastResponse, 'other_text') ? lastResponse.other_text : null
+      const expansionId = get(lastResponse, 'expansion_id') ? lastResponse.expansion_id : ""
 
-      this.setState({ disabled, responses, selectedExpansions, sentences, index: numResponses - 1 })
+      this.setState({ responses, expansionId, other, sentences, index: numResponses - 1 })
 
     } else {
       // if we are part way through, go to the next available sentence
@@ -145,7 +150,7 @@ export default class Labeler extends Component {
 
   renderSentence() {
     const { abbreviation } = this.props
-    const { disabled, index, selectedExpansions } = this.state
+    const { index, expansionId, other } = this.state
     const abbreviated_text = abbreviation.abbreviated_text
     const expansions = get(abbreviation, 'expansions')
     const sentences = get(abbreviation, 'sentences')
@@ -212,30 +217,46 @@ export default class Labeler extends Component {
       <div style={{ marginTop: 15, marginBottom: 40 }}>
         {text}
         <div style={{ marginTop: 30, marginBottom: 80 }}>
-          <Autocomplete
-            autoHighlight
-            disabled={disabled}
-            id="expansion-options"
-            multiple
-            onChange={(event, value) => this.setState({ selectedExpansions: value })}
-            options={expansions}
-            getOptionLabel={option => option.expanded_text}
-            renderInput={params => <TextField { ...params } label="Abbreviated text" variant="outlined" fullWidth />}
-            value={disabled ? [] : selectedExpansions}
-          />
+          <TextField
+            fullWidth
+            label="Select an expansion"
+            onChange={this.handleSelect}
+            select
+            SelectProps={{ native: true }}
+            value={expansionId}
+            variant="filled"
+          >
+            <option value="" />
+            {map(expansions, expansion => <option value={expansion.id}>{expansion.expanded_text}</option>)}
+          </TextField>
           <FormGroup style={{ marginTop: 8 }}>
             <FormControlLabel
               control={
                 <Checkbox
                   icon={<OutlineIcon />}
-                  checked={disabled}
-                  checkedIcon={<FilledIcon />}
-                  onChange={this.handleCheckBox}
+                  checked={other === 'none'}
+                  checkedIcon={<NoneIcon />}
+                  onChange={(event) => this.handleCheckBox('none', event.target.checked)}
                 />
               }
               label={
-                <div style={{ color: disabled ? '#f50057' : '#757575' }}>
+                <div style={{ color: other === 'none' ? '#f50057' : '#757575' }}>
                   None of the above
+                </div>
+              }
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  icon={<OutlineIcon />}
+                  checked={other === 'ambiguous'}
+                  checkedIcon={<FilledIcon color="primary" />}
+                  onChange={(event) => this.handleCheckBox('ambiguous', event.target.checked)}
+                />
+              }
+              label={
+                <div style={{ color: other === 'ambiguous' ? '#1e88e5' : '#757575' }}>
+                  Ambiguous
                 </div>
               }
             />
@@ -249,7 +270,7 @@ export default class Labeler extends Component {
     const { abbreviation, onMobile, open } = this.props
     const abbreviated_text = get(abbreviation, 'abbreviated_text')
 
-    const { disabled, index, selectedExpansions, sentences } = this.state
+    const { index, expansionId, other, sentences } = this.state
 
     const textStyle = {
       fontFamily: 'Roboto, Arial, Helvetica, sans-serif',
@@ -259,7 +280,7 @@ export default class Labeler extends Component {
 
     return (
       <Dialog fullScreen={onMobile} open={open} onClose={this.onClose} fullWidth maxWidth="sm">
-        <DialogTitle style={{ position: 'relative' }}>
+        <DialogTitle style={{ position: 'relative', ...onMobile && { padding: '8px 12px' } }}>
           <IconButton style={{ position: 'absolute', right: 0, top: 0 }}>
             <ClearIcon onClick={this.onClose} />
           </IconButton>
@@ -267,7 +288,7 @@ export default class Labeler extends Component {
             {`Abbreviation: ${abbreviated_text}`}
           </span>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent style={{ ...onMobile && { padding: '8px 12px' } }}>
           <DialogContentText style={{ ...textStyle, color: '#232f3ec7' }}>
             What does the abbreviation refer to in this context?
           </DialogContentText>
@@ -283,7 +304,7 @@ export default class Labeler extends Component {
             Prev
           </Button>
           <Button
-            disabled={!disabled && selectedExpansions.length === 0}
+            disabled={expansionId === "" && other === null}
             variant="contained"
             color="primary"
             onClick={this.handleNext}
