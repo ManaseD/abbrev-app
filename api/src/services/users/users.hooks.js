@@ -12,7 +12,9 @@ module.exports = {
       iff(isProvider('external'), authenticate('jwt'))
     ],
     create: [
+      authenticate('jwt'),
       // Require Admin
+      iff(context => context.params.user.role !== 'admin', disallow()),
       hashPassword('password')
     ],
     update: [ disallow('external') ],
