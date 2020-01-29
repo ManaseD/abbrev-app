@@ -66,6 +66,12 @@ export default class Login extends Component {
           type="password"
           variant="filled"
           value={password}
+          onKeyPress={(event) => {
+            if (event.key === 'Enter') {
+              event.preventDefault()
+              authenticate({ username, password })
+            }
+          }}
         />
         <div style={{ ...textStyle, color: '#232f3e', fontSize: 13, paddingTop: 18, paddingBottom: 12 }}>
           Forgot your password? Please contact <a style={{ textDecoration: 'none', color: '#0b56ca' }} href="mailto:marta.skreta@sickkids.ca">Marta Skreta</a> to reset your account
